@@ -25,13 +25,13 @@ class login:
                 
         self.canvas1 = tk.Canvas(self.login, width = 250, height = 200,  relief = 'raised')
         self.canvas1.pack()
-        self.label1 = tk.Label(self.login, text='Please, paste your token below')
+        self.label1 = ttk.Label(self.login, text='Please, paste your token below')
         self.canvas1.create_window(125, 50, window=self.label1)
                 
-        self.entry1 = tk.Entry (self.login)
+        self.entry1 = ttk.Entry (self.login)
         self.canvas1.create_window(125, 90, window=self.entry1)
             
-        self.button = tk.Button(self.login, text = "Submit", command = self.verifyToken)
+        self.button = ttk.Button(self.login, text = "Submit", command = self.verifyToken)
         self.canvas1.create_window(125,130,window=self.button)
         self.login.iconbitmap('canvas_icon.ico')
         self.login.mainloop()
@@ -52,6 +52,7 @@ class login:
             if os.environ.get('Canvas_Key') is None:
                 print('no key stored')
                 os.environ['Canvas_Key'] = text
+                print(os.environ['Canvas_Key'])
             else:
                 print('Key previously stored')
                 print(os.environ['Canvas_Key'])

@@ -10,5 +10,5 @@ from canvasapi import Canvas
 
 if os.environ.get('Canvas_Key') is None:
     verify = loginScreen.login()
-else:
-    widget = graphicsBasic.widget()
+
+widget = graphicsBasic.widget()
