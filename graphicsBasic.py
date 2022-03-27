@@ -17,7 +17,10 @@ from canvasapi import Canvas
 class widget:
     def __init__(self):
         self.URL = 'https://uk.instructure.com'
-        self.stuCanvas = canvasPractice.userCanvas()
+        file = open('canvas_api_token.txt', 'r')
+        TOKEN = file.readline()
+        file.close()
+        self.stuCanvas = canvasPractice.userCanvas(TOKEN)
         self.root = tk.Tk()
         #root.tk.call('lappend', 'auto_path', 'Azure-ttk-theme-main/azure dark')
         #root.tk.call('package', 'require', 'azure dark')

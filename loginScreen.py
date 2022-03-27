@@ -49,13 +49,14 @@ class login:
             print(text)
         
         if self.authSucc:
-            if os.environ.get('Canvas_Key') is None:
+            if not os.path.exists('canvas_api_token.txt'):
                 print('no key stored')
-                os.environ['Canvas_Key'] = text
-                print(os.environ['Canvas_Key'])
+                file = open('canvas_api_token.txt', 'w')
+                file.write(text)
+                file.close()
             else:
                 print('Key previously stored')
-                print(os.environ['Canvas_Key'])
+                
             self.login.destroy()
 
 

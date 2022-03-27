@@ -7,11 +7,11 @@ import os
 import re
 import cryptography 
 
-TOKEN = '1139~bfXGBZAZHKoh7ZqH4GrUtoATy9M37hrTxhQNZ5JR4WR8Ycr6Zjm3vhU1VO7b5RT8'
+#TOKEN = '1139~bfXGBZAZHKoh7ZqH4GrUtoATy9M37hrTxhQNZ5JR4WR8Ycr6Zjm3vhU1VO7b5RT8'
 
 
 class userCanvas:
-    def __init__(self):
+    def __init__(self, TOKEN):
         URL = 'https://uk.instructure.com'
         if os.environ.get('Canvas_Key') is None:
             print('no key stored')

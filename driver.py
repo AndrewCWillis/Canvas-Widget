@@ -8,7 +8,7 @@ import graphicsBasic
 import os
 from canvasapi import Canvas
 
-if os.environ.get('Canvas_Key') is None:
+if not os.path.exists('canvas_api_token.txt'):
     verify = loginScreen.login()
 
 widget = graphicsBasic.widget()
