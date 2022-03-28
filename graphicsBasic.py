@@ -73,9 +73,9 @@ class widget:
         # Whenever something is added to the innerFrame, 
         #   set all the inner frame to be scrollable and make the canvas as wide as the innerFrame
         self.innerFrame1.bind('<Configure>', 
-                              func=lambda x: self.canvas1.configure(scrollregion=self.canvas1.bbox("all"), width=self.innerFrame1.winfo_width()))
+                              func=lambda x: self.updateFrame(self.canvas1, self.innerFrame1))
         self.innerFrame2.bind('<Configure>', 
-                              func=lambda x: self.canvas2.configure(scrollregion=self.canvas2.bbox("all"), width=self.innerFrame2.winfo_width()))
+                              func=lambda x: self.updateFrame(self.canvas2, self.innerFrame2))
 
         # Tell the scrollbars the function to execute when they are changed
         self.sb1.config(command=self.canvas1.yview)
@@ -101,8 +101,17 @@ class widget:
         self.root.iconbitmap('canvas_icon.ico')
         self.root.mainloop()
 
-
+    # Update the root frame size to accomodate arbitrary width items and 
+    #   let the canvas know that the scrollable area is the entire canvas.
+    def updateFrame(self, canvas, innerFrame):
+        # Set all the inner frame to be scrollable and make the canvas as wide as the innerFrame
+        canvas.configure(scrollregion=canvas.bbox("all"), width=innerFrame.winfo_width())
         
+        # Update the root window to be wide enough to fit the contents
+        if self.root.winfo_width() < innerFrame.winfo_width():
+            self.root.geometry(f'{innerFrame.winfo_width() + 50}x{self.root.winfo_height()}')    
+            
+            
 # Put the grades onto the grades tab
     def displayGrades(self):
         gradesList = self.stuCanvas.getGrades()
