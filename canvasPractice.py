@@ -29,19 +29,19 @@ class userCanvas:
         
         
         for course in self.courses:
-            print(course)
+            # print(course)
             self.courseIds.append(str(course.id))
-            print('Color in Canvas: '+str(course.course_color))
+            # print('Color in Canvas: '+str(course.course_color))
             self.courseIds.append(course.id)
             self.courseIdToCourseName[str(course.id)] = str(course.name)
             calendar = course.calendar
-            print(calendar)
+            # print(calendar)
             self.assignments = course.get_assignments()
-            for assignment in self.assignments:
-                print('\t'+str(assignment)+' Due At: '+(str(assignment.due_at_date) if hasattr(assignment, 'due_at_date') else ''))
-        print('-------------------------------')
+            # for assignment in self.assignments:
+                # print('\t'+str(assignment)+' Due At: '+(str(assignment.due_at_date) if hasattr(assignment, 'due_at_date') else ''))
+        # print('-------------------------------')
 
-        print('Notifications: ')
+        # print('Notifications: ')
 
     # ex. announcement.title = Week 10 reminders
     # ex. announcement.context_code = course_2031359
@@ -54,21 +54,34 @@ class userCanvas:
                 output[courseCode].append(announcement.title)
             else:
                 output[courseCode] = [announcement.title]
-        print(output)
+        # print(output)
         return output
     
+    # Returns a dictionary of courseId, listOfTodo pairs
     def getToDo(self):
-        output = ""
-        print('\nToDo: ')  
+        output = {}
+        
         for task in self.todo:
-            output += str(task.assignment['name']) + '\n\t' +str(task.assignment['due_at'])
-            print(task.assignment['name'])
-            print('\t'+str(task.assignment['due_at']))
+            if output.__contains__(task.course_id):
+                output[str(task.course_id)].append(task)
+            else:
+                output[str(task.course_id)] = [task]
+            
+        # print(output)
+        # For every todo item, add it to the output dictionary
+        # for attr, value in self.todo[0].__dict__.items():
+        #     print(f'attr: {attr}, val: {value}')
+            
+            # if output.__contains__(task.course_id):
+            #     output[str(task.course_id)].append(task)
+            # else:
+            #     output[str(task.course_id)] = [task]
+                
         return output
     
     # Spencer: Changed to return a list of dictionaries of classes with their grade
     def getGrades(self):
-        print('Grade:')
+        # print('Grade:')
         enrollments = self.user.get_enrollments()
         output = []
         for enrollment in enrollments:
@@ -76,13 +89,13 @@ class userCanvas:
                 output.append({ 'class': str(enrollment.course_id),
                                'grade': str(enrollment.grades['current_grade']) if hasattr(enrollment, 'grades') and 'current_grade' in enrollment.grades else ''
                     })
-                print(str(enrollment.course_id)+": "+str(enrollment.grades['current_grade']) if hasattr(enrollment, 'grades') and 'current_grade' in enrollment.grades else '')
+                # print(str(enrollment.course_id)+": "+str(enrollment.grades['current_grade']) if hasattr(enrollment, 'grades') and 'current_grade' in enrollment.grades else '')
         return output
     
     def getColors(self):
         colors = self.user.get_colors()
         Colors = {courseID[7:]:color for (courseID, color) in colors['custom_colors'].items() if courseID[7:] in self.courseIds }
-        print(Colors)
+        # print(Colors)
         return Colors
         
     def getCourseIdsToCourseName(self):
