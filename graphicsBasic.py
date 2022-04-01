@@ -13,6 +13,8 @@ import tkinter as tk
 from tkinter import BOTH, E, LEFT, NW, RIGHT, VERTICAL, W, Y, ttk
 import os
 from canvasapi import Canvas
+from datetime import datetime
+from dateutil import tz
 
 class widget:
     def __init__(self):
@@ -76,6 +78,10 @@ class widget:
                               func=lambda x: self.updateFrame(self.canvas1, self.innerFrame1))
         self.innerFrame2.bind('<Configure>', 
                               func=lambda x: self.updateFrame(self.canvas2, self.innerFrame2))
+        self.innerFrame3.bind('<Configure>', 
+                              func=lambda x: self.updateFrame(self.canvas3, self.innerFrame3))
+        self.innerFrame4.bind('<Configure>', 
+                              func=lambda x: self.updateFrame(self.canvas4, self.innerFrame4))
 
         # Tell the scrollbars the function to execute when they are changed
         self.sb1.config(command=self.canvas1.yview)
@@ -93,11 +99,8 @@ class widget:
                                     row = 0, 
                                     padx = 30,
                                     pady = 30)
-        ttk.Label(self.tab4,
-                  text = self.stuCanvas.getToDo()).grid(column = 0,
-                                    row = 0, 
-                                    padx = 30,
-                                    pady = 30)
+        self.displayTodos()
+        
         self.root.iconbitmap('canvas_icon.ico')
         self.root.mainloop()
 
@@ -177,3 +180,70 @@ class widget:
         self.canvas2.create_window(0, 0, window=self.innerFrame2, anchor=NW) # Put the innerFrame in the canvas
         self.canvas2.pack(side=LEFT, anchor=NW, fill=BOTH) # Put the canvas in the tab frame
         self.sb2.pack(side=RIGHT, fill=Y) # Put the scrollbar in the tab frame
+        
+    def displayTodos(self):
+        todoDict = self.stuCanvas.getToDo()
+        idToName = self.stuCanvas.getCourseIdsToCourseName()
+        Colors = self.stuCanvas.getColors()
+        countOfRows = 0 # Counter for which row to place the next item
+    
+        # Get the appropriate timezone objects
+        utcTimeZone = tz.UTC
+        localTimeZone = tz.tzlocal()
+        
+        # For every course there is an announcement for
+        for courseKey in todoDict:
+            # Put the class name as a 'header' of sorts
+            ttk.Label(self.innerFrame4, 
+                      text = str(idToName[courseKey]),
+                      justify = 'left',
+                      background = Colors[courseKey],
+                      borderwidth = 5,
+                      relief = 'raised').grid(column = 0, 
+                               row = countOfRows,
+                               padx = 10,
+                               pady = 10,
+                               sticky = W)
+                      
+        
+            # For all the todo items for this course
+            for todoItem in todoDict[courseKey]:
+                # Find the object that this todo is about
+                objectInTodo = {}
+                objectInTodoAttr = ''
+                for attr, value in todoItem.__dict__.items():
+                    if attr == 'assignment' or attr == 'quiz':
+                        objectInTodoAttr = attr
+                        objectInTodo = value
+                        # print(f'attr: {attr}, val: {value}')
+                        
+                # Convert the datetime string in the objectInTodo to a datetime object
+                canvasDateTimeObject = datetime.strptime(objectInTodo["due_at"], '%Y-%m-%dT%H:%M:%SZ')
+                
+                # Tell the object that it is in UTC time zone
+                canvasDateTimeObject = canvasDateTimeObject.replace(tzinfo=utcTimeZone)
+                
+                # Get a new datetime object in the local timezone
+                canvasDateTimeObjectLocal = canvasDateTimeObject.astimezone(localTimeZone)
+                
+                # Conver the local dattime object to a string output
+                canvasDueDateString = canvasDateTimeObjectLocal.strftime('%A, %B %d, %Y at %I:%M %p')
+                
+                todoString = f'Type: {todoItem.type.capitalize()}:\n{objectInTodoAttr.capitalize()}: {objectInTodo["name"]}\nDue at: {canvasDueDateString}'
+                # Put the announcement under the 'header'
+                ttk.Label(self.innerFrame4, 
+                          text = todoString,
+                          justify = 'left',
+                          background = 'white',
+                          borderwidth = 5).grid(column = 0, 
+                                    row = countOfRows+1,
+                                    padx = 50,
+                                    pady = 10,
+                                    sticky = W)
+        
+                countOfRows += 1
+            countOfRows +=1
+            
+        self.canvas4.create_window(0, 0, window=self.innerFrame4, anchor=NW) # Put the innerFrame in the canvas
+        self.canvas4.pack(side=LEFT, anchor=NW, fill=BOTH) # Put the canvas in the tab frame
+        self.sb4.pack(side=RIGHT, fill=Y) # Put the scrollbar in the tab frame
