@@ -59,8 +59,10 @@ class userCanvas:
                     date = datetime.strptime(temp, '%Y-%m-%d')
                     today = date.today()
                     if date >= today: #exclude assignments that have already occured
-                        output[datetime.strptime(temp, '%Y-%m-%d')] = str(assignment) #make datetime object for sorting
-                    
+                        if datetime.strptime(temp, '%Y-%m-%d') not in output.keys():
+                            output[datetime.strptime(temp, '%Y-%m-%d')] = []
+                        output[datetime.strptime(temp, '%Y-%m-%d')].append(str(assignment))
+                        
         o_assignments = collections.OrderedDict(sorted(output.items()))#ordered dictionary (by date) to avoid headaches
         assII = collections.OrderedDict([(k.strftime('%Y-%m-%d'), v) for k, v in o_assignments.items()])
         #print(o_assignments)

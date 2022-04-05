@@ -253,19 +253,22 @@ class widget:
         Colors = self.stuCanvas.getColors()
         numDays = 7
         today = date.today()
+        #print(assignments)
         for i in range(numDays):
             day = today + timedelta(days=i)
             ttk.Label(self.innerFrame3, 
-                      text = day.strftime('%A, %m/%d/%y'),font = 'bold', background = 'gray',
+                      text = day.strftime('%A, %m/%d/%y'), justify = 'center', font = 'bold', background = 'gray',
                                                borderwidth = 5).grid(row = 0, column = i, sticky = W, padx = 2)
             key = day.strftime('%Y-%m-%d')
             if key in assignments.keys():
-                ttk.Label(self.innerFrame3, 
-                      text = assignments[key],font = 'bold', background = 'light gray',
-                                                borderwidth = 5).grid(row = 1, column = i, sticky = W, padx = 2)
+                for j in range(len(assignments[key])):#multiple assignments due the same day
+            
+                    ttk.Label(self.innerFrame3, 
+                      text = assignments[key][j],font = 'bold', justify = 'center', background = 'light gray',
+                                                borderwidth = 5).grid(row = 1 + j, column = i, sticky = W, padx = 2)
             else:
                 ttk.Label(self.innerFrame3, 
-                      text = 'Nothing to Do :)',font = 'bold', background = 'light gray',
+                      text = 'Nothing to Do :)', font = 'bold',justify = 'center', background = 'light gray',
                                                 borderwidth = 5).grid(row = 1, column = i, sticky = W, padx = 2)
             
         self.canvas3.create_window(0, 0, window=self.innerFrame3, anchor=NW) # Put the innerFrame in the canvas
