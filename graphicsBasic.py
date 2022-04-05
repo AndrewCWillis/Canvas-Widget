@@ -14,7 +14,9 @@ from tkinter import BOTH, E, LEFT, NW, RIGHT, VERTICAL, W, Y, ttk
 import os
 from canvasapi import Canvas
 from datetime import datetime
+from datetime import timedelta
 from dateutil import tz
+from datetime import date
 
 class widget:
     def __init__(self):
@@ -23,6 +25,7 @@ class widget:
         TOKEN = file.readline()
         file.close()
         self.stuCanvas = canvasPractice.userCanvas(TOKEN)
+        #self.stuCanvas.getAssignments()
         self.root = tk.Tk()
         #root.tk.call('lappend', 'auto_path', 'Azure-ttk-theme-main/azure dark')
         #root.tk.call('package', 'require', 'azure dark')
@@ -93,12 +96,8 @@ class widget:
 
         self.displayGrades()
         self.displayAnnouncements()
+        self.displayCalendar()
 
-        ttk.Label(self.tab3,
-                  text = self.stuCanvas.getAnnouncements()).grid(column = 0,
-                                    row = 0, 
-                                    padx = 30,
-                                    pady = 30)
         self.displayTodos()
         
         self.root.iconbitmap('canvas_icon.ico')
@@ -247,3 +246,28 @@ class widget:
         self.canvas4.create_window(0, 0, window=self.innerFrame4, anchor=NW) # Put the innerFrame in the canvas
         self.canvas4.pack(side=LEFT, anchor=NW, fill=BOTH) # Put the canvas in the tab frame
         self.sb4.pack(side=RIGHT, fill=Y) # Put the scrollbar in the tab frame
+        
+    def displayCalendar(self):
+        assignments = self.stuCanvas.getAssignments() #returns ordered dictionary sorted by datetime due date keys
+        idToName = self.stuCanvas.getCourseIdsToCourseName()
+        Colors = self.stuCanvas.getColors()
+        numDays = 7
+        today = date.today()
+        for i in range(numDays):
+            day = today + timedelta(days=i)
+            ttk.Label(self.innerFrame3, 
+                      text = day.strftime('%A, %m/%d/%y'),font = 'bold', background = 'gray',
+                                               borderwidth = 5).grid(row = 0, column = i, sticky = W, padx = 2)
+            key = day.strftime('%Y-%m-%d')
+            if key in assignments.keys():
+                ttk.Label(self.innerFrame3, 
+                      text = assignments[key],font = 'bold', background = 'light gray',
+                                                borderwidth = 5).grid(row = 1, column = i, sticky = W, padx = 2)
+            else:
+                ttk.Label(self.innerFrame3, 
+                      text = 'Nothing to Do :)',font = 'bold', background = 'light gray',
+                                                borderwidth = 5).grid(row = 1, column = i, sticky = W, padx = 2)
+            
+        self.canvas3.create_window(0, 0, window=self.innerFrame3, anchor=NW) # Put the innerFrame in the canvas
+        self.canvas3.pack(side=LEFT, anchor=NW, fill=BOTH) # Put the canvas in the tab frame
+        self.sb3.pack(side=RIGHT, fill=Y) # Put the scrollbar in the tab frame
