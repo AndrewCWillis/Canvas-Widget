@@ -254,23 +254,30 @@ class widget:
         numDays = 7
         today = date.today()
         #print(assignments)
+        dayCells = [tk.Frame(self.innerFrame3, bg = 'light gray', width = 200, height = 200) for day in range(numDays)]
         for i in range(numDays):
             day = today + timedelta(days=i)
-            ttk.Label(self.innerFrame3, 
+            ttk.Label(dayCells[i], 
                       text = day.strftime('%A, %m/%d/%y'), justify = 'center', font = 'bold', background = 'gray',
-                                               borderwidth = 5).grid(row = 0, column = i, sticky = W, padx = 2)
+                                               borderwidth = 5).grid(row = 0, column = 0, sticky = W, padx = 2)
             key = day.strftime('%Y-%m-%d')
             if key in assignments.keys():
                 for j in range(len(assignments[key])):#multiple assignments due the same day
             
-                    ttk.Label(self.innerFrame3, 
+                    ttk.Label(dayCells[i], 
                       text = assignments[key][j],font = 'bold', justify = 'center', background = 'light gray',
-                                                borderwidth = 5).grid(row = 1 + j, column = i, sticky = W, padx = 2)
+                                                borderwidth = 5, wraplengt=140).grid(row = 1 + j, column = 0, sticky = W, padx = 2)
             else:
-                ttk.Label(self.innerFrame3, 
+                ttk.Label(dayCells[i], 
                       text = 'Nothing to Do :)', font = 'bold',justify = 'center', background = 'light gray',
-                                                borderwidth = 5).grid(row = 1, column = i, sticky = W, padx = 2)
-            
+                                       borderwidth = 5, wraplengt=140).grid(row = 1, column = 0, sticky = W, padx = 2)
+        r = 0 
+        for i, day in enumerate(dayCells):
+            if (i % 7 == 0 and i != 0) or r == 6:
+                r += 1
+                
+            day.grid(row = r, column = 7 - (i%7), sticky = W, padx = 2)
+ 
         self.canvas3.create_window(0, 0, window=self.innerFrame3, anchor=NW) # Put the innerFrame in the canvas
         self.canvas3.pack(side=LEFT, anchor=NW, fill=BOTH) # Put the canvas in the tab frame
         self.sb3.pack(side=RIGHT, fill=Y) # Put the scrollbar in the tab frame
