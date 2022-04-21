@@ -8,9 +8,10 @@ from itertools import count
 from operator import countOf
 from textwrap import fill
 from turtle import bgcolor, width
+from winreg import HKEY_CLASSES_ROOT, HKEY_CURRENT_USER
 import canvasPractice
 import tkinter as tk
-from tkinter import BOTH, E, LEFT, NW, RIGHT, VERTICAL, W, Y, ttk
+from tkinter import BOTH, E, LEFT, NE, NS, NW, RIGHT, TOP, VERTICAL, W, Y, Button, Toplevel, ttk
 import os
 from canvasapi import Canvas
 from datetime import datetime
@@ -20,6 +21,20 @@ from datetime import date
 
 class widget:
     def __init__(self):
+        try:
+            settingsfile = open("settings.txt", 'r')
+            self.staylogged = int(settingsfile.readline())
+            self.darkmode = str(settingsfile.readline())
+            settingsfile.close()
+            self.darkmode = self.darkmode.strip()
+        except:
+            settingsfile = open("settings.txt", 'w')
+            self.staylogged = 0
+            self.darkmode = "light"
+            settingsfile.write(str(self.staylogged))
+            settingsfile.write(self.darkmode)
+            settingsfile.close()
+
         self.URL = 'https://uk.instructure.com'
         file = open('canvas_api_token.txt', 'r')
         TOKEN = file.readline()
@@ -30,9 +45,9 @@ class widget:
         #root.tk.call('lappend', 'auto_path', 'Azure-ttk-theme-main/azure dark')
         #root.tk.call('package', 'require', 'azure dark')
         self.root.tk.call('source', 'Azure-ttk-theme-main/Azure-ttk-theme-main/azure.tcl')
-        self.root.tk.call('set_theme', 'light')
+        self.root.tk.call('set_theme', self.darkmode)
         self.style = ttk.Style()
-        #style.theme_use('dark')
+        #self.style.theme_use('dark')
         #root.tk.call('lappend', 'auto_path', 'awthemes-10.4.0')
         #root.tk.call('package', 'require', 'awdark')
 
@@ -41,6 +56,14 @@ class widget:
         self.root.geometry('500x500')
         self.tabControl = ttk.Notebook(self.root)
 
+        #setting button adding to the top right
+        self.token = TOKEN
+        self.settingsButton = tk.Button(text = "Settings", command=self.open_popup)
+        self.settingsButton.pack(side=TOP , anchor=NE)
+        self.stayLoggedIn(self.staylogged)
+
+
+        #setting up tabs 
         self.tab1 = ttk.Frame(self.tabControl)
         self.tab2 = ttk.Frame(self.tabControl)
         self.tab3 = ttk.Frame(self.tabControl)
@@ -281,3 +304,53 @@ class widget:
         self.canvas3.create_window(0, 0, window=self.innerFrame3, anchor=NW) # Put the innerFrame in the canvas
         self.canvas3.pack(side=LEFT, anchor=NW, fill=BOTH) # Put the canvas in the tab frame
         self.sb3.pack(side=RIGHT, fill=Y) # Put the scrollbar in the tab frame
+
+    def stayLoggedIn(self, SLI):
+        file = os.path.exists("canvas_api_token.txt")
+        if(SLI == 1):
+            if not file:
+                file = open("canvas_api_token.txt", 'w')
+                file.write(self.token)
+                file.close()
+            self.staylogged = 1
+        else:
+            print("here")
+            if file:
+                os.remove("canvas_api_token.txt")
+            self.staylogged = 0
+        
+        print(self.staylogged, ": staylogged inside of funtion")
+        settingfile = open("settings.txt", 'w')
+        settingfile.write(str(self.staylogged) + "\n")
+        settingfile.write(str(self.darkmode) + "\n")
+        settingfile.close()
+
+    def darkModeSwitch(self, themeswitch):
+        print(themeswitch)
+        if themeswitch == 1:
+            self.darkmode = "dark"
+            self.root.tk.call('set_theme', self.darkmode)
+        else:
+            self.darkmode = "light"
+            self.root.tk.call('set_theme', self.darkmode)
+        settingfile = open("settings.txt", 'w')
+        settingfile.write(str(self.staylogged) + "\n")
+        settingfile.write(str(self.darkmode) + "\n")
+        settingfile.close()
+
+
+    def open_popup(self):
+        top = Toplevel(self.root)
+        top.geometry("500x500")
+        top.title("Settings")
+        SLI = tk.IntVar(value=self.staylogged)
+        tk.Checkbutton(top, text = "Stay Logged In", variable = SLI, onvalue=1, offvalue=0, command = lambda: self.stayLoggedIn(SLI.get())).pack()
+        
+        if self.darkmode == "dark":
+            switch = 1
+        else:
+            switch = 0
+        
+        themeSwitch = tk.IntVar(value=switch)
+        themeSwitch.set(switch)
+        tk.Checkbutton(top,text= "Dark Mode", variable = themeSwitch, onvalue=1, offvalue=0, command= lambda: self.darkModeSwitch(themeSwitch.get())).pack()
