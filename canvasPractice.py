@@ -5,12 +5,11 @@ Gathering relevant information from the Canvas API with Token
 from canvasapi import Canvas
 import os
 import re
-import cryptography 
+#import cryptography 
 from datetime import datetime
 from datetime import date
 import collections
 #TOKEN = '1139~bfXGBZAZHKoh7ZqH4GrUtoATy9M37hrTxhQNZ5JR4WR8Ycr6Zjm3vhU1VO7b5RT8'
-
 
 class userCanvas:
     def __init__(self, TOKEN):
