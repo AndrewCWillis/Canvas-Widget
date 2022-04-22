@@ -11,13 +11,15 @@ from turtle import bgcolor, width
 from winreg import HKEY_CLASSES_ROOT, HKEY_CURRENT_USER
 import canvasPractice
 import tkinter as tk
-from tkinter import BOTH, E, LEFT, NE, NS, NW, RIGHT, TOP, VERTICAL, W, Y, Button, Toplevel, ttk
+from tkinter import BOTH, E, LEFT, NE, NS, NW, RIGHT, TOP, VERTICAL, W, Y, Button, PhotoImage, Toplevel, ttk
 import os
 from canvasapi import Canvas
 from datetime import datetime
 from datetime import timedelta
 from dateutil import tz
 from datetime import date
+from PIL import Image
+from PIL import ImageTk as itk
 
 class widget:
     def __init__(self):
@@ -51,17 +53,27 @@ class widget:
         #root.tk.call('lappend', 'auto_path', 'awthemes-10.4.0')
         #root.tk.call('package', 'require', 'awdark')
 
+        self.gearIcon, self.refreshIcon = self.getIcons()
 
         self.root.title("Canvas Widget")
         self.root.geometry('500x500')
         self.tabControl = ttk.Notebook(self.root)
 
+        # Control frame to hold the buttons horizontally
+        self.top = tk.Frame(self.root)
+        self.top.pack(side=TOP, anchor=NE)
+
         #setting button adding to the top right
         self.token = TOKEN
-        self.settingsButton = tk.Button(text = "Settings", command=self.open_popup)
-        self.settingsButton.pack(side=TOP , anchor=NE)
+        self.settingsButton = tk.Button(text = "Settings", image=self.gearIcon, command=self.open_popup)
         self.stayLoggedIn(self.staylogged)
 
+        # Refresh Button, adjacent to settings button
+        self.refreshButton = tk.Button(text = "Refresh", image=self.refreshIcon, command=self.open_popup)
+
+        # Add the buttons to the control frame
+        self.settingsButton.pack(in_=self.top, side=RIGHT)
+        self.refreshButton.pack(in_=self.top, side=RIGHT)
 
         #setting up tabs 
         self.tab1 = ttk.Frame(self.tabControl)
@@ -137,7 +149,7 @@ class widget:
             self.root.geometry(f'{innerFrame.winfo_width() + 50}x{self.root.winfo_height()}')    
             
             
-# Put the grades onto the grades tab
+    # Put the grades onto the grades tab
     def displayGrades(self):
         gradesList = self.stuCanvas.getGrades()
         idToName = self.stuCanvas.getCourseIdsToCourseName()
@@ -354,3 +366,18 @@ class widget:
         themeSwitch = tk.IntVar(value=switch)
         themeSwitch.set(switch)
         tk.Checkbutton(top,text= "Dark Mode", variable = themeSwitch, onvalue=1, offvalue=0, command= lambda: self.darkModeSwitch(themeSwitch.get())).pack()
+    
+    def getIcons(self):
+        gearIcon = Image.open("canvas_gear.png")
+        refreshIcon = Image.open("canvas_refresh.png")
+        newSize = (25, 25)
+        gearIcon = gearIcon.resize(newSize)
+        refreshIcon = refreshIcon.resize(newSize)
+        refreshIcon = itk.PhotoImage(refreshIcon)
+        gearIcon = itk.PhotoImage(gearIcon)
+
+        return gearIcon, refreshIcon
+
+    def refresh(self):
+        # Somehow make the model refresh
+        return 0
