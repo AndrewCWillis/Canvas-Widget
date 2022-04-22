@@ -69,7 +69,7 @@ class widget:
         self.stayLoggedIn(self.staylogged)
 
         # Refresh Button, adjacent to settings button
-        self.refreshButton = tk.Button(text = "Refresh", image=self.refreshIcon, command=self.open_popup)
+        self.refreshButton = tk.Button(text = "Refresh", image=self.refreshIcon, command=self.refresh)
 
         # Add the buttons to the control frame
         self.settingsButton.pack(in_=self.top, side=RIGHT)
@@ -132,7 +132,6 @@ class widget:
         self.displayGrades()
         self.displayAnnouncements()
         self.displayCalendar()
-
         self.displayTodos()
         
         self.root.iconbitmap('canvas_icon.ico')
@@ -379,5 +378,7 @@ class widget:
         return gearIcon, refreshIcon
 
     def refresh(self):
-        # Somehow make the model refresh
-        return 0
+        self.displayGrades()
+        self.displayAnnouncements()
+        self.displayCalendar()
+        self.displayTodos()
