@@ -8,6 +8,7 @@ import re
 import cryptography 
 from datetime import datetime
 from datetime import date
+from dateutil import tz
 import collections
 #TOKEN = '1139~bfXGBZAZHKoh7ZqH4GrUtoATy9M37hrTxhQNZ5JR4WR8Ycr6Zjm3vhU1VO7b5RT8'
 
@@ -43,31 +44,47 @@ class userCanvas:
                  #print('\t'+str(assignment)+' Due At: '+(str(assignment.due_at_date) if hasattr(assignment, 'due_at_date') else ''))
         # print('-------------------------------')
 
-        # print('Notifications: ')
-
-    # ex. announcement.title = Week 10 reminders
-    # ex. announcement.context_code = course_2031359
-    # Spencer: It now returns a dict of courseId, listOfAnnouncement pairs
     def getAssignments(self):
         output = {}
+        # Get the appropriate timezone objects
+        utcTimeZone = tz.UTC
+        localTimeZone = tz.tzlocal()
+        
         for course in self.courses:
             assignments = course.get_assignments()
             for assignment in assignments:
                 if hasattr(assignment, 'due_at_date'): #exclude assignments that dont have date associated
                     temp = str(assignment.due_at_date)
                     temp = temp[:10]
+                    
                     date = datetime.strptime(temp, '%Y-%m-%d')
                     today = date.today()
+                
                     if date >= today: #exclude assignments that have already occured
-                        if datetime.strptime(temp, '%Y-%m-%d') not in output.keys():
-                            output[datetime.strptime(temp, '%Y-%m-%d')] = []
-                        output[datetime.strptime(temp, '%Y-%m-%d')].append(str(assignment))
+                         # Convert the datetime string in to a datetime object
+                        canvasDateTimeObject = datetime.strptime(temp, '%Y-%m-%d')
+                        
+                        # Tell the object that it is in UTC time zone
+                        canvasDateTimeObject = canvasDateTimeObject.replace(tzinfo=utcTimeZone)
+                        
+                        # Get a new datetime object in the local timezone
+                        canvasDateTimeObjectLocal = canvasDateTimeObject.astimezone(localTimeZone)
+                        
+                        # Convert the local dattime object to a string output
+                        canvasDueDateString = canvasDateTimeObjectLocal.strftime('%Y-%m-%d')
+                        
+                        if canvasDateTimeObjectLocal not in output.keys():
+                            output[canvasDateTimeObjectLocal] = []
+                        output[canvasDateTimeObjectLocal].append([str(assignment), str(course.id)])
                         
         o_assignments = collections.OrderedDict(sorted(output.items()))#ordered dictionary (by date) to avoid headaches
         assII = collections.OrderedDict([(k.strftime('%Y-%m-%d'), v) for k, v in o_assignments.items()])
         #print(o_assignments)
         return assII
     
+    # ex. announcement.title = Week 10 reminders
+    # ex. announcement.context_code = course_2031359
+    # Spencer: It now returns a dict of courseId, listOfAnnouncement pairs
     def getAnnouncements(self):
         output = {}
         for announcement in self.announcements:
