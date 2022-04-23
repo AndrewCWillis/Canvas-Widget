@@ -9,9 +9,10 @@ from operator import countOf
 from textwrap import fill
 from turtle import bgcolor, width
 from winreg import HKEY_CLASSES_ROOT, HKEY_CURRENT_USER
+
 import canvasPractice
 import tkinter as tk
-from tkinter import BOTH, E, LEFT, NE, NS, NW, RIGHT, TOP, VERTICAL, W, Y, Button, PhotoImage, Toplevel, ttk
+from tkinter import BOTH, E, LEFT, NE, NS, NW, RIGHT, TOP, VERTICAL, HORIZONTAL, W, X, Y, Button, PhotoImage, Toplevel, ttk
 import os
 from canvasapi import Canvas
 from datetime import datetime
@@ -91,13 +92,14 @@ class widget:
         self.sb1 = ttk.Scrollbar(self.tab1, orient=VERTICAL)
         self.sb2 = ttk.Scrollbar(self.tab2, orient=VERTICAL)
         self.sb3 = ttk.Scrollbar(self.tab3, orient=VERTICAL)
+        self.sb3Horiz = ttk.Scrollbar(self.tab3, orient=HORIZONTAL)
         self.sb4 = ttk.Scrollbar(self.tab4, orient=VERTICAL)
         
         # Canvas to go in the tab frames. This is so that the content can be
         #   made scrollable
         self.canvas1 = tk.Canvas(self.tab1, yscrollcommand=self.sb1.set)
         self.canvas2 = tk.Canvas(self.tab2, yscrollcommand=self.sb2.set)
-        self.canvas3 = tk.Canvas(self.tab3, yscrollcommand=self.sb3.set)
+        self.canvas3 = tk.Canvas(self.tab3, yscrollcommand=self.sb3.set, xscrollcommand=self.sb3Horiz.set)
         self.canvas4 = tk.Canvas(self.tab4, yscrollcommand=self.sb4.set)
         
         # Frames to put the actual content in. This frame will go inside the
@@ -125,6 +127,7 @@ class widget:
         self.sb1.config(command=self.canvas1.yview)
         self.sb2.config(command=self.canvas2.yview)
         self.sb3.config(command=self.canvas3.yview)
+        self.sb3Horiz.config(command=self.canvas3.xview)
         self.sb4.config(command=self.canvas4.yview)
         
         self.tabControl.pack(expand = 1, fill ="both")
@@ -199,7 +202,7 @@ class widget:
                 ttk.Label(self.innerFrame2, 
                           text = str(announcement),
                           justify = 'left',
-                          background = 'white',
+                          #background = 'white',
                           borderwidth = 5).grid(column = 0, 
                                     row = countOfRows+1,
                                     padx = 50,
@@ -267,7 +270,7 @@ class widget:
                 ttk.Label(self.innerFrame4, 
                           text = todoString,
                           justify = 'left',
-                          background = 'white',
+                          #background = 'white',
                           borderwidth = 5).grid(column = 0, 
                                     row = countOfRows+1,
                                     padx = 50,
@@ -287,34 +290,40 @@ class widget:
         Colors = self.stuCanvas.getColors()
         numDays = 7
         today = date.today()
-        #print(assignments)
+        # print(assignments)
         dayCells = [tk.Frame(self.innerFrame3, bg = 'light gray', width = 200, height = 200) for day in range(numDays)]
         for i in range(numDays):
             day = today + timedelta(days=i)
             ttk.Label(dayCells[i], 
-                      text = day.strftime('%A, %m/%d/%y'), justify = 'center', font = 'bold', background = 'gray',
+                      text = day.strftime('%A, %m/%d/%y'), justify = 'center', background = 'gray',
                                                borderwidth = 5).grid(row = 0, column = 0, sticky = W, padx = 2)
             key = day.strftime('%Y-%m-%d')
             if key in assignments.keys():
-                for j in range(len(assignments[key])):#multiple assignments due the same day
+                for j in range(len(assignments[key])):#multiple assignments due the same day                
+                    assignmentTitle = assignments[key][j][0]
+                    courseId = assignments[key][j][1]
+                    
+                    calAssignmentString = f"{idToName[courseId]}: {assignmentTitle}"
             
                     ttk.Label(dayCells[i], 
-                      text = assignments[key][j],font = 'bold', justify = 'center', background = 'light gray',
+                      text = calAssignmentString, justify = 'center', background = Colors[courseId],
                                                 borderwidth = 5, wraplengt=140).grid(row = 1 + j, column = 0, sticky = W, padx = 2)
             else:
                 ttk.Label(dayCells[i], 
-                      text = 'Nothing to Do :)', font = 'bold',justify = 'center', background = 'light gray',
+                      text = 'Nothing to Do :)',justify = 'center', background = 'light gray',
                                        borderwidth = 5, wraplengt=140).grid(row = 1, column = 0, sticky = W, padx = 2)
         r = 0 
         for i, day in enumerate(dayCells):
             if (i % 7 == 0 and i != 0) or r == 6:
                 r += 1
                 
-            day.grid(row = r, column = 7 - (i%7), sticky = W, padx = 2)
+            day.grid(row = r, column = (i%7), sticky = W, padx = 2) # 7 - 
  
         self.canvas3.create_window(0, 0, window=self.innerFrame3, anchor=NW) # Put the innerFrame in the canvas
-        self.canvas3.pack(side=LEFT, anchor=NW, fill=BOTH) # Put the canvas in the tab frame
         self.sb3.pack(side=RIGHT, fill=Y) # Put the scrollbar in the tab frame
+        self.sb3Horiz.pack(side=TOP, fill=X)
+        self.canvas3.pack(side=LEFT, anchor=NW, fill=BOTH) # Put the canvas in the tab frame
+        
 
     def stayLoggedIn(self, SLI):
         file = os.path.exists("canvas_api_token.txt")
@@ -325,19 +334,19 @@ class widget:
                 file.close()
             self.staylogged = 1
         else:
-            print("here")
+            # print("here")
             if file:
                 os.remove("canvas_api_token.txt")
             self.staylogged = 0
         
-        print(self.staylogged, ": staylogged inside of funtion")
+        # print(self.staylogged, ": staylogged inside of function")
         settingfile = open("settings.txt", 'w')
         settingfile.write(str(self.staylogged) + "\n")
         settingfile.write(str(self.darkmode) + "\n")
         settingfile.close()
 
     def darkModeSwitch(self, themeswitch):
-        print(themeswitch)
+        # print(themeswitch)
         if themeswitch == 1:
             self.darkmode = "dark"
             self.root.tk.call('set_theme', self.darkmode)
