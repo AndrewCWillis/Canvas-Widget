@@ -19,6 +19,7 @@ from dateutil import tz
 from datetime import date
 from PIL import Image
 from PIL import ImageTk as itk
+import webbrowser
 
 class widget:
     def __init__(self):
@@ -362,6 +363,11 @@ class widget:
         top = Toplevel(self.root)
         top.geometry("500x500")
         top.title("Settings")
+        
+        #browserButtonImage = PhotoImage(file='CanvasLogo.png')
+        browserButton = Button(top, text = 'Open in Browser', command = self.openWebBrowser)
+        browserButton.pack(side='top')
+        
         SLI = tk.IntVar(value=self.staylogged)
         tk.Checkbutton(top, text = "Stay Logged In", variable = SLI, onvalue=1, offvalue=0, command = lambda: self.stayLoggedIn(SLI.get())).pack()
         
