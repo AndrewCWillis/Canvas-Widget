@@ -1,20 +1,18 @@
 # -*- coding: utf-8 -*-
 '''
 CS498 Group Project 
-A Foundation for the Graphics
-'''
-import enum
-from itertools import count
-from operator import countOf
-from textwrap import fill
-from turtle import bgcolor, width
-from winreg import HKEY_CLASSES_ROOT, HKEY_CURRENT_USER
+The GUI for the Canvas application.
 
-import canvasPractice
+Robert Crispen
+Wade Durham
+Drew Willis
+Spencer Gillaspie
+'''
+
+import appBackEnd
 import tkinter as tk
-from tkinter import BOTH, E, LEFT, NE, NS, NW, RIGHT, TOP, VERTICAL, HORIZONTAL, W, X, Y, Button, PhotoImage, Toplevel, ttk
+from tkinter import BOTH, E, LEFT, NE, NS, NW, RIGHT, TOP, VERTICAL, HORIZONTAL, W, X, Y, Toplevel, ttk
 import os
-from canvasapi import Canvas
 from datetime import datetime
 from datetime import timedelta
 from dateutil import tz
@@ -42,17 +40,11 @@ class widget:
         file = open('canvas_api_token.txt', 'r')
         TOKEN = file.readline()
         file.close()
-        self.stuCanvas = canvasPractice.userCanvas(TOKEN)
-        #self.stuCanvas.getAssignments()
+        self.stuCanvas = appBackEnd.userCanvas(TOKEN)
         self.root = tk.Tk()
-        #root.tk.call('lappend', 'auto_path', 'Azure-ttk-theme-main/azure dark')
-        #root.tk.call('package', 'require', 'azure dark')
         self.root.tk.call('source', 'Azure-ttk-theme-main/Azure-ttk-theme-main/azure.tcl')
         self.root.tk.call('set_theme', self.darkmode)
         self.style = ttk.Style()
-        #self.style.theme_use('dark')
-        #root.tk.call('lappend', 'auto_path', 'awthemes-10.4.0')
-        #root.tk.call('package', 'require', 'awdark')
 
         self.gearIcon, self.refreshIcon = self.getIcons()
 
@@ -174,7 +166,7 @@ class widget:
         self.canvas1.pack(side=LEFT, anchor=NW, fill=BOTH) # Put the canvas in the tab frame
         self.sb1.pack(side=RIGHT, fill=Y) # Put the scrollbar in the tab frame
         
-          
+    # Put the announcements onto the announcements tab     
     def displayAnnouncements(self):
         announcementsDict = self.stuCanvas.getAnnouncements()
         idToName = self.stuCanvas.getCourseIdsToCourseName()
@@ -217,6 +209,7 @@ class widget:
         self.canvas2.pack(side=LEFT, anchor=NW, fill=BOTH) # Put the canvas in the tab frame
         self.sb2.pack(side=RIGHT, fill=Y) # Put the scrollbar in the tab frame
         
+    # Put the to-dos onto the to do tab
     def displayTodos(self):
         todoDict = self.stuCanvas.getToDo()
         idToName = self.stuCanvas.getCourseIdsToCourseName()
@@ -283,20 +276,25 @@ class widget:
         self.canvas4.create_window(0, 0, window=self.innerFrame4, anchor=NW) # Put the innerFrame in the canvas
         self.canvas4.pack(side=LEFT, anchor=NW, fill=BOTH) # Put the canvas in the tab frame
         self.sb4.pack(side=RIGHT, fill=Y) # Put the scrollbar in the tab frame
-        
+    
+    # Put the next week of assignments in the Assignments tab in a calendar form
     def displayCalendar(self):
         assignments = self.stuCanvas.getAssignments() #returns ordered dictionary sorted by datetime due date keys
         idToName = self.stuCanvas.getCourseIdsToCourseName()
         Colors = self.stuCanvas.getColors()
         numDays = 7
         today = date.today()
-        # print(assignments)
         dayCells = [tk.Frame(self.innerFrame3, bg = 'light gray', width = 200, height = 200) for day in range(numDays)]
+        
         for i in range(numDays):
             day = today + timedelta(days=i)
+            
+            # Add the date as a header to each column in the calendar view
             ttk.Label(dayCells[i], 
                       text = day.strftime('%A, %m/%d/%y'), justify = 'center', background = 'gray',
                                                borderwidth = 5).grid(row = 0, column = 0, sticky = W, padx = 2)
+            
+            # For all the assignments that are due on this day
             key = day.strftime('%Y-%m-%d')
             if key in assignments.keys():
                 for j in range(len(assignments[key])):#multiple assignments due the same day                
@@ -305,6 +303,7 @@ class widget:
                     
                     calAssignmentString = f"{idToName[courseId]}: {assignmentTitle}"
             
+                    # Add each assignment to the appropriate column/day
                     ttk.Label(dayCells[i], 
                       text = calAssignmentString, justify = 'center', background = Colors[courseId],
                                                 borderwidth = 5, wraplengt=140).grid(row = 1 + j, column = 0, sticky = W, padx = 2)
@@ -324,7 +323,7 @@ class widget:
         self.sb3Horiz.pack(side=TOP, fill=X)
         self.canvas3.pack(side=LEFT, anchor=NW, fill=BOTH) # Put the canvas in the tab frame
         
-
+    # When the user toggles the Stay Logged In checkbox, do the appropriate action
     def stayLoggedIn(self, SLI):
         file = os.path.exists("canvas_api_token.txt")
         if(SLI == 1):
@@ -334,7 +333,6 @@ class widget:
                 file.close()
             self.staylogged = 1
         else:
-            # print("here")
             if file:
                 os.remove("canvas_api_token.txt")
             self.staylogged = 0
@@ -345,8 +343,9 @@ class widget:
         settingfile.write(str(self.darkmode) + "\n")
         settingfile.close()
 
+
+    # When te user toggles the Dark Mode checkbox, switch the app's theme
     def darkModeSwitch(self, themeswitch):
-        # print(themeswitch)
         if themeswitch == 1:
             self.darkmode = "dark"
             self.root.tk.call('set_theme', self.darkmode)
@@ -358,7 +357,7 @@ class widget:
         settingfile.write(str(self.darkmode) + "\n")
         settingfile.close()
 
-
+    # When the user clicks on the settings button, open a window with the options
     def open_popup(self):
         top = Toplevel(self.root)
         top.geometry("500x500")
@@ -375,6 +374,7 @@ class widget:
         themeSwitch.set(switch)
         tk.Checkbutton(top,text= "Dark Mode", variable = themeSwitch, onvalue=1, offvalue=0, command= lambda: self.darkModeSwitch(themeSwitch.get())).pack()
     
+    # Load in the images for the refresh and settings buttons
     def getIcons(self):
         gearIcon = Image.open("canvas_gear.png")
         refreshIcon = Image.open("canvas_refresh.png")
@@ -386,6 +386,9 @@ class widget:
 
         return gearIcon, refreshIcon
 
+    # When the user clicks the refresh button, update the GUI. A new call is not
+    #   being made to the API right now, so that is something that could be added
+    #   later on.
     def refresh(self):
         self.displayGrades()
         self.displayAnnouncements()
