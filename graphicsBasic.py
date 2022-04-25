@@ -21,6 +21,7 @@ from dateutil import tz
 from datetime import date
 from PIL import Image
 from PIL import ImageTk as itk
+import webbrowser
 
 class widget:
     def __init__(self):
@@ -357,12 +358,18 @@ class widget:
         settingfile.write(str(self.staylogged) + "\n")
         settingfile.write(str(self.darkmode) + "\n")
         settingfile.close()
-
-
+    def openWebBrowser(self):
+        webbrowser.open('https://uk.instructure.com/')
+        
     def open_popup(self):
         top = Toplevel(self.root)
         top.geometry("500x500")
         top.title("Settings")
+        
+        #browserButtonImage = PhotoImage(file='CanvasLogo.png')
+        browserButton = Button(top, text = 'Open in Browser', command = self.openWebBrowser)
+        browserButton.pack(side='top')
+        
         SLI = tk.IntVar(value=self.staylogged)
         tk.Checkbutton(top, text = "Stay Logged In", variable = SLI, onvalue=1, offvalue=0, command = lambda: self.stayLoggedIn(SLI.get())).pack()
         
@@ -374,7 +381,9 @@ class widget:
         themeSwitch = tk.IntVar(value=switch)
         themeSwitch.set(switch)
         tk.Checkbutton(top,text= "Dark Mode", variable = themeSwitch, onvalue=1, offvalue=0, command= lambda: self.darkModeSwitch(themeSwitch.get())).pack()
-    
+        
+        
+        
     def getIcons(self):
         gearIcon = Image.open("canvas_gear.png")
         refreshIcon = Image.open("canvas_refresh.png")
@@ -385,6 +394,7 @@ class widget:
         gearIcon = itk.PhotoImage(gearIcon)
 
         return gearIcon, refreshIcon
+
 
     def refresh(self):
         self.displayGrades()
