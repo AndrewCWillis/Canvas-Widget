@@ -389,7 +389,6 @@ class widget:
         themeSwitch = tk.IntVar(value=switch)
         themeSwitch.set(switch)
         tk.Checkbutton(top,text= "Dark Mode", variable = themeSwitch, onvalue=1, offvalue=0, command= lambda: self.darkModeSwitch(themeSwitch.get())).pack()
-        tk.Checkbutton(top,text= "Dark Mode", variable = themeSwitch, onvalue=1, offvalue=0, command= lambda: self.darkModeSwitch(themeSwitch.get())).pack()#is the button for darkmode
 
         # Radio Buttons
         var = tk.IntVar()
