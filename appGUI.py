@@ -43,6 +43,7 @@ class widget:
         file.close()
         self.stuCanvas = appBackEnd.userCanvas(TOKEN)
         self.root = tk.Tk()
+        self.days = 7
         self.root.tk.call('source', 'Azure-ttk-theme-main/Azure-ttk-theme-main/azure.tcl')
         self.root.tk.call('set_theme', self.darkmode)
         self.style = ttk.Style()
@@ -283,7 +284,7 @@ class widget:
         assignments = self.stuCanvas.getAssignments() #returns ordered dictionary sorted by datetime due date keys
         idToName = self.stuCanvas.getCourseIdsToCourseName()
         Colors = self.stuCanvas.getColors()
-        numDays = 7
+        numDays = self.days
         today = date.today()
         dayCells = [tk.Frame(self.innerFrame3, bg = 'light gray', width = 200, height = 200) for day in range(numDays)]
         
@@ -358,6 +359,12 @@ class widget:
         settingfile.write(str(self.darkmode) + "\n")
         settingfile.close()
     
+    def changeDate(self, date):
+        for widgets in self.innerFrame3.winfo_children():#deletes all the widgets in the calendar tab 
+            widgets.destroy()
+        self.days = 7*date #changes the amount of days that can be viewed
+        self.displayCalendar() #reload the calender
+
     def openWebBrowser(self):
         webbrowser.open("https://uk.instructure.com/")
 
@@ -382,6 +389,17 @@ class widget:
         themeSwitch = tk.IntVar(value=switch)
         themeSwitch.set(switch)
         tk.Checkbutton(top,text= "Dark Mode", variable = themeSwitch, onvalue=1, offvalue=0, command= lambda: self.darkModeSwitch(themeSwitch.get())).pack()
+        tk.Checkbutton(top,text= "Dark Mode", variable = themeSwitch, onvalue=1, offvalue=0, command= lambda: self.darkModeSwitch(themeSwitch.get())).pack()#is the button for darkmode
+
+        # Radio Buttons
+        var = tk.IntVar()
+        rButton = []
+        text = ["1 Week", "2 Weeks", "3 Weeks"]#names for the radio buttons 
+        for i in range(3):
+            rButton.append(tk.Radiobutton(top, text = text[i], variable=var, value = i + 1, command=lambda: self.changeDate(var.get())))
+            if self.days == ((i+1) * 7):#Check to so which button has been pressed most recently start on 7 days
+                rButton[i].select()
+            rButton[i].pack()
     
     # Load in the images for the refresh and settings buttons
     def getIcons(self):
