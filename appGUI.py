@@ -357,6 +357,9 @@ class widget:
         settingfile.write(str(self.staylogged) + "\n")
         settingfile.write(str(self.darkmode) + "\n")
         settingfile.close()
+    
+    def openWebBrowser(self):
+        webbrowser.open("https://uk.instructure.com/")
 
     # When the user clicks on the settings button, open a window with the options
     def open_popup(self):
@@ -365,7 +368,7 @@ class widget:
         top.title("Settings")
         
         #browserButtonImage = PhotoImage(file='CanvasLogo.png')
-        browserButton = Button(top, text = 'Open in Browser', command = self.openWebBrowser)
+        browserButton = tk.Button(top, text = 'Open in Browser', command = self.openWebBrowser)
         browserButton.pack(side='top')
         
         SLI = tk.IntVar(value=self.staylogged)
