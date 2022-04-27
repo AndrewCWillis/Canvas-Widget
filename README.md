@@ -15,6 +15,9 @@ Type 'python driver.py' in your terminal with the appropriate modules downloaded
 ## Assignments/Calendar
 ![Assignments/Calendar](PicturesForReadme/Calendar.PNG)
 
+## To Do
+![To Do](PicturesForReadme/Todo.PNG)
+
 ## Settings Menu
 ![Settings](PicturesForReadme/Settings.PNG)
 
